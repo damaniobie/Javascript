@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta name = "viewport" content = "width=device-width, initial-scale=1.0"/>
+<style>
+	canvas{border: 1px solid black;
+		   background-color: #f1f1f1}
+</style>
+</head>
+<body>
+<button onclick = "start()">start</button>
+<button onclick = "reset()">reset</button> <!-- reset button is buggy as of now.. To restart refresh the page-->
+<canvas></canvas>
+	<script>
+	
+		var canvas = document.querySelector('canvas');
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+	var c = canvas.getContext('2d');
+	var bigRadius = 60, medRadius = 34, smallRadius = 16;
+	var radii = [bigRadius,medRadius,smallRadius];
+	var maxBubbles = 3;
+	var len = 0;
+	var circleArrayLength = 0;
+	var maxSpawn = 3; 
+	var maxSpeed;
+	var maxNumCirclesOnScreen = 9;
+	var randTime = (Math.random()*2000)+4000;
+	var numSpawn = 1;
+	var increaseXSpeed = 1, increaseYSpeed = 1;
+	var maxRadius = 100;
+	var growSpeed = .08,maxGrowSpeed = .32;
+	var num_balls_at_max = 0;
+	var time = 0;
+	var dx = (Math.random() - 0.5)*8,dy = (Math.random() - 0.5) *8;
+	var dec_num = .01;
+	var youlosescreen;
+	var score = 0;
+	var active;
+	//use a const ????
+	
+	
+	var colorArray = [
+	'#ffaa33',
+	'#99ffaaa',
+	'#00ff00',
+	'#4411aa',
+	'#ff1100'	
+	];
+	
+	var mouse = {
+	x: undefined,
+	y:undefined,
+	
+	}
+	
+	//canvas.addEventListener('mousedown',handleMouseEvt);
+	
+	window.addEventListener('click', 
+							 function(event){					
+							 mouse.x = event.x;
+							 mouse.y = event.y;
+							 });
+	
+	window.addEventListener('resize', function(){
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+		//init();
+	});
+	
+	function start_intervals(){
+	var up_score = setInterval(function(){ //have function to restart everyting
+	if(!youlosescreen){
+	score += 1;
+	}else{
+	clearInterval(up_score);
+	}
+	},100);
+	
+	//update speed, grow rate and spawn rate every 30 secs
+	setInterval(function(){
+	if(growSpeed < .32){
+	growSpeed += .05;
+	}else{
+	growSpeed = maxGrowSpeed;
+	}
+	console.log("score: "+score);
+	},20000);
+	
+	setInterval(function(){
+	if(numSpawn < maxSpawn){
+	numSpawn+=1;
+	}else{
+	numSpawn = maxSpawn;
+	}
+	},40000);
+	
+	}
+	
+	function initialize_var(){
+	maxBubbles = 3;
+	len = 0;
+	circleArrayLength = 0;
+	maxSpawn = 3; 
+	maxNumCirclesOnScreen = 9;
+	numSpawn = 1;
+	growSpeed = .08; 
+	maxGrowSpeed = .32;
+	num_balls_at_max = 0;
+	time = 0;
+	dx = (Math.random() - 0.5)*8,dy = (Math.random() - 0.5) *8;
+	dec_num = .01;
+	youlosescreen = false;
+	score = 0;
+	active = true;
+	}
+	
+	function Circle(x,y,dx,dy,radius){
+	this.x = x;
+	this.y = y;
+	this.dx = dx;
+	this.dy = dy;
+	this.radius = radius;
+	this.minRadius = radius;
+	this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
+	this.remove = false;
+	this.flash = false;
+	//this.atMax = false;
+	
+	this.draw = function(){
+	c.beginPath();
+	c.arc(this.x,this.y,this.radius,0,Math.PI * 2, false);
+	if(this.radius > bigRadius + 20){
+	c.fillStyle = colorArray[Math.floor(Math.random() * colorArray.length)];
+	}else{
+	c.fillStyle = this.color;
+	}
+	c.fill();
+	
+	if(youlosescreen){
+	c.clearRect(0,0,innerWidth,innerHeight);
+	c.fillStyle = 'black';
+	c.font="50px Arial";
+	c.fillText("You lose...",150,200);
+	c.fillText("Your score",200,300);
+	 c.fillText(score,200,400); //put score in corner of screen
+		//return;
+	}
+	}
+	
+	
+	this.update = function(){
+	if(this.x+this.radius>innerWidth || this.x - this.radius < 0){
+	this.dx = -this.dx;
+	}
+	if(this.y + this.radius > innerHeight || this.y - this.radius < 0){
+	this.dy = -this.dy;
+	}
+	this.x += this.dx;
+	this.y += this.dy;
+	
+	if(this.radius <= maxRadius){
+	this.radius += growSpeed;
+	}else{
+	//this.atMax = true;
+	youlosescreen = true;
+	this.radius = maxRadius;
+	active = false;
+	}
+	
+	if(active){
+	youlosescreen = false;
+	}
+	
+	
+	//interaction with mouse
+	
+	var d = distance(mouse.x,mouse.y,this.x,this.y);
+	if(d < this.radius ){
+	
+	/*if(this.radius == maxRadius){
+		this.radius = bigRadius;
+		//this.atMax = false;
+		//num_balls_at_max--;
+		//console.log("NUMBER OF BALLS AT MAX"+num_balls_at_max);
+	}else */
+	if(this.radius  > bigRadius + 20){
+		this.radius = bigRadius;
+	}else if(this.radius > bigRadius && this.radius < bigRadius + 20){	
+		this.radius = medRadius;
+	}else if(this.radius > medRadius + 16 && this.radius <= bigRadius){
+		this.radius = medRadius;
+	}else if(this.radius > medRadius && this.radius <= medRadius + 16){
+		this.radius = smallRadius;
+	}else if(this.radius > smallRadius + 10 && this.radius <= medRadius){
+		this.radius = smallRadius;
+	}else if(this.radius <= smallRadius + 10){
+		this.remove = true;
+		console.log("POP");
+		circleArrayLength-=1;
+		console.log("circlelength: "+circleArrayLength);
+	if(circleArrayLength <= 0){
+	var init_2 = setInterval(
+				function (){
+					for(var i=0;i<numSpawn;i++){
+					var radius =radii[Math.floor(Math.random()*3)];
+					var x = Math.random() * (innerWidth - radius * 2) + radius, y = Math.random() * (innerHeight - radius * 2)+ radius;
+					var dx = (Math.random() - 0.5)*8,dy = (Math.random() - 0.5) *8 ;
+						if(circleArrayLength < maxNumCirclesOnScreen){
+							circleArray.push(new Circle(x,y,dx,dy,radius));
+						circleArrayLength+=1;
+						console.log("lengthofcircle!: "+circleArrayLength);
+	
+						}
+							}
+							/*if(youlosescreen){
+							clearInterval(init_2);
+							console.log("you loes screen");
+							}*/
+						},randTime);
+	
+	}
+	}
+	mouse.x = undefined;
+	mouse.y = undefined;
+	}
+	
+	this.draw();
+	}
+	
+	}
+	
+	
+	var circleArray = [];
+	function start(){
+	animate();
+	start_intervals();
+	initialize_var();
+	c.clearRect(0,0,innerWidth,innerHeight);
+	var interval = setInterval(function init(){
+	len+=1;
+	if(len==maxBubbles){
+	clearInterval(interval);
+	//setTimeout(init2,2000);
+	}
+	for(var i=0;i<numSpawn;i++){
+	var radius =radii[Math.floor(Math.random()*3)];
+	var x = Math.random() * (innerWidth - radius * 2) + radius, y = Math.random() * (innerHeight - radius * 2)+ radius;
+	//var dx = (Math.random() - 0.5)*8,dy = (Math.random() - 0.5) *8 ;
+	circleArray.push(new Circle(x,y,dx,dy,radius));
+	circleArrayLength++;
+	}
+	/*if(youlosescreen){
+							clearInterval(interval);
+							console.log("you loes screen");
+							}*/
+	},3000);
+	}
+	
+	/////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////
+	
+	
+	function distance(x,y,x1,y1){
+	var a = x - x1;
+	var b = y - y1;
+	return (Math.sqrt(a*a + b*b));
+	}
+	
+	function animate(){
+	active = true;
+	if(active){
+	console.log("Animate is working");
+		requestAnimationFrame(animate);
+		c.clearRect(0,0,innerWidth,innerHeight);
+		for(var i=0;i<circleArray.length;i++){
+			circleArray[i].update();
+			if(circleArray[i].remove == true){
+			circleArray.splice(i,1);			
+			}
+			//if(circleArray[i].atMax == true && circleArray[i+1].atMax == true && circleArray[i+2].atMax == true){
+			//console.log("Im in");
+		//}
+			
+	}
+	}
+	//circle.update();
+	}
+
+	
+	function reset(){
+	if(youlosescreen){
+	c.clearRect(0,0,innerWidth,innerHeight);
+	//youlosescreen = false;
+	//score = 0;
+	//start();
+	active = true;
+	//animate();
+	
+	}
+	}
+	
+	
+	//start();
+
+	//var interval = setInterval(init,3000);
+	
+	
+	</script>
+
+</body>
+
+
+
+
+</html>
