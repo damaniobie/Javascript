@@ -1,2 +1,2 @@
 # Javascript
-A Collection of Java Basics, Practice, Projects, Data Structures and Algorithms
+A Collection of Javascript Basics, Practice, Projects, Data Structures and Algorithms
