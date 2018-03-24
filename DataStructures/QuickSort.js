@@ -4,9 +4,7 @@ function quick_Sort(arr) {
 		return arr;
 	} else {
 
-		var left = [];
-		var right = [];
-		var newArray = [];
+		var left = [], right = [], newArray = [];
 		var pivot = arr.pop();
 		var length = arr.length;
 
