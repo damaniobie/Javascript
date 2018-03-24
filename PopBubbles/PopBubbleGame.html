@@ -66,19 +66,17 @@
 	window.addEventListener('resize', function(){
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
-		//init();
 	});
 	
 	function start_intervals(){
-	var up_score = setInterval(function(){ //have function to restart everyting
+	var up_score = setInterval(function(){
 	if(!youlosescreen){
 	score += 1;
 	}else{
 	clearInterval(up_score);
 	}
 	},100);
-	
-	//update speed, grow rate and spawn rate every 30 secs
+		
 	setInterval(function(){
 	if(growSpeed < .32){
 	growSpeed += .05;
@@ -126,7 +124,6 @@
 	this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
 	this.remove = false;
 	this.flash = false;
-	//this.atMax = false;
 	
 	this.draw = function(){
 	c.beginPath();
@@ -144,7 +141,7 @@
 	c.font="50px Arial";
 	c.fillText("You lose...",150,200);
 	c.fillText("Your score",200,300);
-	 c.fillText(score,200,400); //put score in corner of screen
+	 c.fillText(score,200,400); 
 		//return;
 	}
 	}
