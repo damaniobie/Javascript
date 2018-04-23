@@ -36,7 +36,7 @@ console.log(sums(10,20,30));
 
 let numbers = [1,2,3,446645,5676];
 console.log(...numbers); //this is the spread operator. The opposite of rest params
-console.log(Math.max(...numbers)); //gets the max in a list of numbers
+console.log(Math.max(...numbers)); //gets the max in a list of numbers 
 
 
 let testResults = [1.23,1.1,4.1];
